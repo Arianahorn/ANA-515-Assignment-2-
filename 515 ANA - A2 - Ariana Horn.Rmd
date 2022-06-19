@@ -1,0 +1,90 @@
+---
+title: "ANA 515 assignment 2"
+author: "Ariana Horn"
+date: '2022-06-18'
+output: 
+  html_document:
+   bootswatch: morph
+---
+
+## **Dataset Introduction**
+
+My dataset contains information about different drug uses in different age groups. This data was collected over a survey and containS 17 observations and 28 variables. Unfortunately, there were some values in variables which made the row a character instead of a numeric. I had to change this and lost in the row age 7 observation, because the age was scaled in some parts. It was interesting to see which drugs in different age groups are more and less used.
+
+[^1]: Loading data into R and installing packages. 
+
+```{r setup, include=FALSE}
+library(knitr)
+library(tidyr)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+```
+
+```{r, include=TRUE}
+#loading data into R 
+library("readr")
+
+urlfile="https://raw.githubusercontent.com/fivethirtyeight/data/dcafc374774f45ede5dd9b8c22ff8097b79a243c/drug-use-by-age/drug-use-by-age.csv"
+#rename dataset to mydataset 
+mydataset<-read_csv(url(urlfile))
+```
+
+```{r, echo=TRUE}
+#taking a look on 'mydataset' and rename column [2] from 'n' to 'participants'
+names(mydataset)[2]<-"participants"
+```
+
+```{r, include=TRUE}
+#taking a look on what my colums are names and their values 
+#looking at the first 8 columns
+str(mydataset[1:8])
+
+#loading package tidyverse for any kind of cleaning
+library("tidyverse")
+
+#checking on missing values NA/nulls
+complete.cases(mydataset)
+summary(mydataset)
+#I found 7 columns which are characters
+#changing columns from character to numeric 
+#column 1 8 10 12 16 20 26 characters 
+
+str(mydataset)
+mydataset$age<-as.integer(mydataset$age)
+mydataset$`cocaine-frequency`<-as.integer(mydataset$`cocaine-frequency`)
+mydataset$`crack-frequency`<-as.integer(mydataset$`crack-frequency`)
+mydataset$`heroin-frequency`<-as.integer(mydataset$`heroin-frequency`)
+mydataset$`inhalant-frequency`<-as.integer(mydataset$`inhalant-frequency`)
+mydataset$`oxycontin-frequency`<-as.integer(mydataset$`oxycontin-frequency`)
+mydataset$`meth-frequency`<-as.integer(mydataset$`meth-frequency`)
+
+summary(mydataset)
+
+#identify NA's in age and keeping them in a different dataset 
+mydatasetNAs<-subset(mydataset,is.na(mydataset$`age`))
+
+#removing NA's rows from age column
+mydataset<-mydataset[!is.na(mydataset$age),]
+#replacing other NA's to 0 
+mydataset[is.na(mydataset)] = 0
+summary(mydataset)
+
+
+#creating a graph of age and marijuana-use
+ggplot(mydataset, aes(x=`age`, y=`marijuana-use`)) + geom_col()
+#this graph was for my personal information to see the ratio in use and age, most use of marijuana is in the age 18-21 
+
+```
+
+## **The data frame has 7 rows and 6 columns. The names and brief description of the columns are in the table below:**
+
+```{r, include=TRUE}
+knitr::kable(head(mydataset[, 1:6]), "simple")
+```
+
+```{r, include=TRUE}
+alc_marijbyage <- subset(mydataset, select = c(`age`,`alcohol-use`, `marijuana-use`))
+summary_new <- summary(alc_marijbyage)
+print(summary_new)
+```
